@@ -1,0 +1,1 @@
+local pluginManager = require(script.PluginManager).new(plugin);
