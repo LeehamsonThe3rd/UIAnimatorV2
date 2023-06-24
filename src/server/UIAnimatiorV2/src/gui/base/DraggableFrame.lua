@@ -3,10 +3,10 @@ local RunService = game:GetService("RunService")
 local DraggableFrame = {};
 DraggableFrame.__index = DraggableFrame;
 
-function DraggableFrame.new(frame : Frame?)
+function DraggableFrame.new(frame: Frame?)
     local self = setmetatable({}, DraggableFrame);
 
-    self.frame = frame
+    self.frame = frame;
 
     self.dragBegin = nil
     self.dragEnd = nil
@@ -15,18 +15,18 @@ function DraggableFrame.new(frame : Frame?)
     return self;
 end
 
-function DraggableFrame:Hold(inputObject : InputObject)
+function DraggableFrame:Hold(inputObject: InputObject)
     if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 then return end;
     self.dragUpdate = RunService.Heartbeat:Connect(function() self:Drag() end);
 end
 
-function DraggableFrame:Drag(inputObject : InputObject)
+function DraggableFrame:Drag(inputObject: InputObject)
     --drag code
 end
 
-function DraggableFrame:Release(inputObject : InputObject)
+function DraggableFrame:Release(inputObject: InputObject)
     if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 then return end;
-    if self.dragUpdate then self.dragUpdate:Disconnect(); end
+    if self.dragUpdate then self.dragUpdate:Disconnect(); end;
 end
 
 function DraggableFrame:ConnectDragging()
@@ -45,4 +45,4 @@ function DraggableFrame:Destroy()
     self:DisconnectDragging();
 end
 
-return DraggableFrame
+return DraggableFrame;

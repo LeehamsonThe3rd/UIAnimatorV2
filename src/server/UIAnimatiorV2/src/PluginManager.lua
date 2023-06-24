@@ -1,4 +1,4 @@
-local Selection = game:GetService("Selection")
+local Selection = game:GetService("Selection");
 local Editor = require(script.Parent.gui.Editor);
 
 local PluginManager = {};
@@ -7,7 +7,7 @@ PluginManager.__index = PluginManager;
 function PluginManager.new(plugin : Plugin)
     local self = setmetatable({}, PluginManager);
 
-    self.plugin = plugin
+    self.plugin = plugin;
 
     self.dockWidgetPluginGuiInfo = DockWidgetPluginGuiInfo.new(
         Enum.InitialDockState.Float,
@@ -53,7 +53,7 @@ function PluginManager:OpenFile()
     if #cachedSelection > 1 then return end;
 
     local select = cachedSelection[1];
-    if not select then return end
+    if not select then return end;
     if not select:IsA("Frame") and not select:IsA("ScrollingFrame") then return end;
 
     local animation = PluginManager._getAnimation(select);
@@ -62,7 +62,7 @@ function PluginManager:OpenFile()
         return;
     end
 
-    _G.animation = require(animation);
+    self.editor.deserializer:LoadAnimation(require(animation));
 end
 
 function PluginManager:ConnectEvents()
