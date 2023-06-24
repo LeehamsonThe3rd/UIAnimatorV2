@@ -45,23 +45,24 @@ function PluginManager._getAnimation(parent : Frame) : ModuleScript
     for _,v in pairs(parent:GetChildren()) do
         if v:GetAttribute("CLASS_UI_ANIMATION") then return v end;
     end
-    return nil
+    return nil;
 end
 
 function PluginManager:OpenFile()
     local cachedSelection = Selection:Get();
-    if cachedSelection:Get() > 1 then return end;
-    
-    local select = cachedSelection[1];
-    if not select:IsA("Frame") then return end;
+    if #cachedSelection > 1 then return end;
 
-    local animation = PluginManager._getAnimation(select)
+    local select = cachedSelection[1];
+    if not select then return end
+    if not select:IsA("Frame") and not select:IsA("ScrollingFrame") then return end;
+
+    local animation = PluginManager._getAnimation(select);
     if not animation then
-        warn("TODO: prompt user to create animation")
-        return
+        warn("TODO: prompt user to create animation");
+        return;
     end
 
-    _G.animation = require(animation)
+    _G.animation = require(animation);
 end
 
 function PluginManager:ConnectEvents()

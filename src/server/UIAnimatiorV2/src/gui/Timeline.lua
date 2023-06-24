@@ -10,7 +10,7 @@ function Timeline.new(dockWidgetPluginGui : DockWidgetPluginGui)
     self.timeline = dockWidgetPluginGui.Main:WaitForChild("Timeline");
     self.timesteps = self.timeline:WaitForChild("Timesteps");
 
-    self:CreateTimesteps();
+    self.steps = self:CreateTimesteps();
 
     return self;
 end
@@ -29,7 +29,7 @@ function Timeline:CreateMarker(index : number, height : number) : Frame
 end
 
 function Timeline._formatSecondsFrames(index : number, framerate : number) : string
-    return math.floor(index/framerate)..':'..string.format("%02d", index%framerate)
+    return math.floor(index/framerate)..':'..string.format("%02d", index%framerate);
 end
 
 function Timeline:CreateTimestamp(index : number) : TextLabel
@@ -42,25 +42,25 @@ function Timeline:CreateTimestamp(index : number) : TextLabel
     timestamp.TextXAlignment = Enum.TextXAlignment.Left;
     timestamp.BackgroundTransparency = 1;
     timestamp.TextColor3 = Color3.fromHex("#999999");
-    timestamp.Text = Timeline._formatSecondsFrames(index, 30);
-
-    if _G.animation then
-        timestamp.Text = Timeline._formatSecondsFrames(index, _G.animation.framerate)
-    end
+    timestamp.Text = Timeline._formatSecondsFrames(index, _G.animation.framerate);
 
     return timestamp;
 end
 
-function Timeline:CreateTimesteps()
+function Timeline:CreateTimesteps() : {GuiObject}
+    local timesteps = {};
+
     for i : number = 0,self.maxTimestepDivisor do
         local markerHeight: number = 0.91;
         if i%self.timeMarkerDistance == 0 then
             markerHeight = 0.95;
-            self:CreateTimestamp(i);
+            table.insert(timesteps, self:CreateTimestamp(i));
         end
 
-        self:CreateMarker(i, markerHeight);
+        table.insert(timesteps, self:CreateMarker(i, markerHeight));
     end
+
+    return timesteps;
 end
 
 return Timeline;
