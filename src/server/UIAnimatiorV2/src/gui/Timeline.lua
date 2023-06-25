@@ -4,12 +4,15 @@ Timeline.__index = Timeline;
 function Timeline.new(dockWidgetPluginGui: DockWidgetPluginGui)
     local self = setmetatable({}, Timeline);
 
+    self.timeline = dockWidgetPluginGui.Main:WaitForChild("Timeline");
+    self.timesteps = self.timeline:WaitForChild("Timesteps");
+
     self._maxTimestepDivisor = 60;
     self._timeMarkerDistance = 3;
     self._framerate = 30;
-
-    self.timeline = dockWidgetPluginGui.Main:WaitForChild("Timeline");
-    self.timesteps = self.timeline:WaitForChild("Timesteps");
+    self._length = 2;
+    self._scaleFactor = 0;
+    self:Resize()
 
     self.steps = self:CreateTimesteps();
 
@@ -17,7 +20,11 @@ function Timeline.new(dockWidgetPluginGui: DockWidgetPluginGui)
 end
 
 function Timeline:SetFramerate(framerate : number)
-    self._framerate = framerate
+    self._framerate = framerate;
+end
+
+function Timeline:SetLength(length : number)
+    self._length = length;
 end
 
 function Timeline:CreateMarker(index: number, offset: number) : Frame
@@ -33,8 +40,11 @@ function Timeline:CreateMarker(index: number, offset: number) : Frame
     return marker;
 end
 
-function Timeline._formatSecondsFrames(index: number, framerate: number): string
-    return math.floor(index/framerate)..':'..string.format("%02d", index%framerate);
+function Timeline:_formatSecondsFrames(index: number): string
+    local seconds = math.floor((index/self._maxTimestepDivisor)*self._length);
+    local framesPerDivision = self._maxTimestepDivisor/self._length;
+    local frames = string.format("%02d", (index%framesPerDivision)/framesPerDivision*self._framerate);
+    return seconds..':'..frames;
 end
 
 function Timeline:CreateTimestamp(index: number): TextLabel
@@ -47,13 +57,21 @@ function Timeline:CreateTimestamp(index: number): TextLabel
     timestamp.TextXAlignment = Enum.TextXAlignment.Left;
     timestamp.BackgroundTransparency = 1;
     timestamp.TextColor3 = Color3.fromHex("#999999");
-    timestamp.Text = Timeline._formatSecondsFrames(index, self._framerate);
+    timestamp.Text = self:_formatSecondsFrames(index);
     timestamp.TextSize = 8;
 
     return timestamp;
 end
 
+function Timeline:DestroyTimesteps()
+    if not self.steps then return end;
+    for _,v in pairs(self.steps) do
+        v:Destroy();
+    end
+end
+
 function Timeline:CreateTimesteps(): {GuiObject}
+    self:DestroyTimesteps();
     local timesteps = {};
 
     for i : number = 0,self._maxTimestepDivisor do
@@ -62,11 +80,29 @@ function Timeline:CreateTimesteps(): {GuiObject}
             markerOffset = 10;
             table.insert(timesteps, self:CreateTimestamp(i));
         end
-
         table.insert(timesteps, self:CreateMarker(i, markerOffset));
     end
 
     return timesteps;
+end
+
+function Timeline._roundToNearestPowerOfTwo(number: number)
+	return math.floor(math.log(number, 2))^2
+end
+
+function Timeline:GetScaleFactor(): number
+    local size = self.timesteps.AbsoluteSize;
+    return Timeline._roundToNearestPowerOfTwo(size.X*0.01)
+end
+
+function Timeline:Resize()
+    local scaleFactor = self:GetScaleFactor();
+	if scaleFactor ~= self._scaleFactor then
+        self._scaleFactor = scaleFactor;
+        --needs improvement
+        self._maxTimestepDivisor = ((self._framerate/9)*self._scaleFactor*self._length);
+		self.steps = self:CreateTimesteps();
+	end
 end
 
 return Timeline;

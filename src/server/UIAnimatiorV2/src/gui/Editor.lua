@@ -14,6 +14,9 @@ function Editor.new(dockWidgetPluginGui : DockWidgetPluginGui)
     self.scrubber = Scrubber.new(dockWidgetPluginGui);
     self.deserializer = Deserializer.new();
 
+    self._length = 2
+    self._framerate = 30
+
     self:ConnectScrubberEvents();
     self:ConnectPreviewEvents();
     self:ConnectDeserializerEvents();
@@ -26,10 +29,14 @@ function Editor:Update(dt, time)
 end
 
 function Editor:UpdateProperties(config: {})
-    self.preview:SetLength(config.length);
-    self.timeline:SetFramerate(config.framerate);
-    self.scrubber:SetLength(config.length);
-    self.scrubber:SetFramerate(config.framerate);
+    self._length = config.length
+    self._framerate = config.framerate
+
+    self.preview:SetLength(self._length);
+    self.timeline:SetLength(self._length);
+    self.timeline:SetFramerate(self._framerate);
+    self.scrubber:SetLength(self._length);
+    self.scrubber:SetFramerate(self._framerate);
 end
 
 function Editor:ConnectScrubberEvents()
@@ -42,6 +49,10 @@ end
 
 function Editor:ConnectDeserializerEvents()
     self.deserializer.ConfigurationLoaded:Connect(function(...) self:UpdateProperties(...) end);
+end
+
+function Editor:WindowResized(windowSize: Vector2)
+    self.timeline:Resize();
 end
 
 return Editor;

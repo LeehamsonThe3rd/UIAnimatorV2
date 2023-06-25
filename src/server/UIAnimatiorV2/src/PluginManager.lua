@@ -13,8 +13,10 @@ function PluginManager.new(plugin : Plugin)
         Enum.InitialDockState.Float,
         true,
         false,
-        600,
-        400
+        1200,
+        200,
+        800,
+        200
     );
     self:CreateWindow();
     self:CreateToolbar();
@@ -65,8 +67,14 @@ function PluginManager:OpenFile()
     self.editor.deserializer:LoadAnimation(require(animation));
 end
 
+function PluginManager:WindowResized(property: string)
+    if not property == "AbsoluteSize" then return end;
+    self.editor:WindowResized(self.dockWidgetPluginGui.AbsoluteSize);
+end
+
 function PluginManager:ConnectEvents()
     Selection.SelectionChanged:Connect(function() self:OpenFile() end);
+    self.dockWidgetPluginGui.Changed:Connect(function(...) self:WindowResized(...) end);
 end
 
 return PluginManager;
