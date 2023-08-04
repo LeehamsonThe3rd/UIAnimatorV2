@@ -21,8 +21,14 @@ function Deserializer.new()
     return self;
 end
 
-function Deserializer:LoadAnimation(animation: {})
-    self.ConfigurationLoaded:Fire(animation.config);
+function Deserializer:LoadAnimation(animation: ModuleScript)
+    local config = {};
+    --make list from properties
+    for i,v in pairs(animation:GetAttributes()) do
+        config[i] = v;
+    end
+
+    self.ConfigurationLoaded:Fire(config);
 end
 
 return Deserializer;

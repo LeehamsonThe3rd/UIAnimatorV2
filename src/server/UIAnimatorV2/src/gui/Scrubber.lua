@@ -24,11 +24,11 @@ function Scrubber.new(dockWidgetPluginGui: DockWidgetPluginGui)
 end
 
 function Scrubber:SetFramerate(framerate : number)
-    self._framerate = framerate
+    self._framerate = framerate;
 end
 
 function Scrubber:SetLength(length : number)
-    self._length = length
+    self._length = length;
 end
 
 function Scrubber:CreateScrubber(): Frame
@@ -39,7 +39,7 @@ function Scrubber:CreateScrubber(): Frame
     scrubber.Size = UDim2.new(0,1,1,0);
     scrubber.BorderSizePixel = 0;
     scrubber.BackgroundColor3 = Color3.fromHex("#00a2ff");
-    scrubber.ZIndex = 3;
+    scrubber.ZIndex = 10;
 
     local scrubberTop = Instance.new("Frame");
     scrubberTop.Name = "top";
@@ -48,7 +48,7 @@ function Scrubber:CreateScrubber(): Frame
     scrubberTop.Size = UDim2.new(0,5,0,5)
     scrubberTop.BorderSizePixel = 0;
     scrubberTop.BackgroundColor3 = Color3.fromHex("#00a2ff");
-    scrubberTop.ZIndex = 3;
+    scrubberTop.ZIndex = 10;
     scrubberTop.AnchorPoint = Vector2.new(0.5,0)
 
     self:ConnectDragging();
@@ -81,19 +81,24 @@ function Scrubber:Drag()
    --accounts offset and converts to scale
    local adjustedPosition = (mousePosition-absPosition) / absSize;
 
+   self.Moved:Fire(self.scrubber.Position.X.Scale*self._length)
    self:SetPosition(Scrubber._snapScrubber(adjustedPosition.X, self._length, self._framerate));
 end
 
-function DraggableFrame:Release(inputObject: InputObject)
+function Scrubber:Release(inputObject: InputObject)
     if inputObject.UserInputType ~= Enum.UserInputType.MouseButton1 then return end;
     if self.dragUpdate then
-        self.Moved:Fire(self.scrubber.Position.X.Scale)
+        self.Moved:Fire(self.scrubber.Position.X.Scale*self._length)
         self.dragUpdate:Disconnect();
     end;
 end
 
 function Scrubber:SetPosition(percent: number)
     self.scrubber.Position = UDim2.fromScale(percent,0);
+end
+
+function Scrubber:GetTime()
+    return self.scrubber.Position.X.Scale*self._length;
 end
 
 function Scrubber:Destroy()

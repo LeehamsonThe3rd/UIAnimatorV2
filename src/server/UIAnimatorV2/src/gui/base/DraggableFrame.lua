@@ -8,9 +8,11 @@ function DraggableFrame.new(frame: Frame?)
 
     self.frame = frame;
 
-    self.dragBegin = nil
-    self.dragEnd = nil
+    self.dragBegin = nil;
+    self.dragEnd = nil;
     self.dragUpdate = nil;
+
+    self:ConnectDragging();
 
     return self;
 end
